@@ -91,8 +91,12 @@ The full pipeline runs as: `fetch → run-load-eeg → run-load-fmri → run-pre
 **Supported models** (`model_type` in `invoke.yaml`): `logistic`, `ridge`, `elasticnet`, `svm`, `random_forest`. For regression targets, `logistic` maps to `Ridge`.
 
 **Outputs:**
-- `output_data/results/metrics.tsv` — one row per condition: mean/std for all metrics, `p_vs_chance`, paired p-values.
-- `output_data/results/fold_scores.tsv` — raw per-fold scores in long format.
+- `output_data/results/{target}/metrics.tsv` — one row per condition: mean/std for all metrics, `p_vs_chance`, paired p-values.
+- `output_data/results/{target}/fold_scores.tsv` — raw per-fold scores in long format.
+
+**Known methodological limitations (acceptable for Brainhack, revisit before publication):**
+- *Confound correction before CV*: `correct_confounds` fits OLS betas on all subjects (including test folds) before the CV loop. The strictly correct approach is to fit the confound model on each training fold and apply it to the held-out fold. This refactor would require passing the confound matrix into `_run_nested_cv`. The bias introduced by the current approach is small when confounds are weakly correlated with features, but could inflate performance estimates in edge cases (e.g. strong site effects with small N per site).
+- *Group-level NaN imputation before CV*: `impute_eeg_features` and `impute_fmri_features` compute column medians across all subjects (test included) and impute sparse NaN before the CV loop. The `SimpleImputer` inside the CV fold is therefore a no-op. Strictly, the median should be computed on the training fold only. In practice the bias is negligible (~2% NaN, large N) — moving imputation inside CV would not lose any subjects (the imputer still fills NaN, just with a training-only median).
 
 ## Notebooks
 
