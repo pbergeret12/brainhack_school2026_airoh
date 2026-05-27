@@ -1,0 +1,17 @@
+name: airoh_env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python>=3.11
+  - pip
+  - pip:
+      - airoh
+      - invoke
+      - requests
+      - jupyter>=1.0
+      - nbconvert>=7.0
+      - matplotlib>=3.5
+      - pandas>=1.3
+      - numpy>=1.24
+      - scikit-learn>=1.3
